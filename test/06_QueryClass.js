@@ -3,6 +3,7 @@ const should = chai.should();
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
+
 const shortid = require('shortid');
 const Class = require('../models/Class');
 let insertedID;
@@ -55,7 +56,7 @@ describe("SQL Object", function () {
 
   it("Class update using Postgresql UPSERT", function () {
     foundClass.name = "Bahasa Indonesia";  //Change property
-    const result = foundClass.save()
+    foundClass.save()
       .then(data => {
         return Class.findById(data.id).then(updatedItem => {
           return updatedItem.name;
@@ -66,9 +67,19 @@ describe("SQL Object", function () {
       })
       .catch(error => {
         return error;
-      });
+      })
+      .should.eventually.equal("Bahasa Indonesia");
+  });
 
-    return result.should.eventually.equal("Bahasa Indonesia");
+  it("Class.findByName support = and LIKE", function () {
+    return Class.findByName("hemis", "LIKE")
+      .then(data => {
+        return data.name;
+      })
+      .catch(error => {
+        return error;
+      })
+      .should.eventually.equal("Chemistry");
   });
 
 });
