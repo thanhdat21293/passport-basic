@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "payroll_admin",
+    "password": "abc",
+    "database": "payroll",
+    "host"    : "payroll",
+    "port"    : 5432,
+    "dialect" : "postgres",
+    "schema"  : "cms",
+    "logging" : false
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host"    : "payroll",
+    "dialect" : "postgres"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host"    : "127.0.0.1",
+    "dialect" : "postgres"
+  }
+}
