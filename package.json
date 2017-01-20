@@ -22,6 +22,7 @@
   "homepage": "https://github.com/TechMaster/pg_promise#readme",
   "dependencies": {
     "bluebird": "^3.4.7",
+    "date-fns": "^1.26.0",
     "pg-promise": "^5.5.0",
     "shortid": "^2.2.6"
   },
@@ -30,6 +31,7 @@
     "chai-as-promised": "^6.0.0",
     "lodash": "^4.17.4",
     "mocha": "^3.2.0",
+    "pg-monitor": "^0.7.1",
     "pg-structure": "^3.5.10"
   }
 }

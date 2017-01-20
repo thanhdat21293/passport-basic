@@ -57,6 +57,9 @@ describe("Create table trainer inherits person", function () {
         t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "John Lenon"]),
         t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "Kim Basinger"]),
         t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "Elon Musk"]),
+        t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "Barack Obama"]),
+        t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "Đặng Quang Huy"]),
+        t.none("INSERT INTO cms.person (id, name) VALUES ($1, $2)", [shortid.generate(), "Nguyễn Văn Tú"]),
 
         t.none("INSERT INTO cms.trainer (id, name, type, active) VALUES ($1, $2, $3, $4)",
           [shortid.generate(), "Trịnh Minh Cường", "full time", true]),
@@ -84,7 +87,7 @@ describe("Create table trainer inherits person", function () {
             return parseInt(item.count);
           });
 
-          return _.isEqual(counts, [6, 3]);
+          return _.isEqual(counts, [9, 3]);
       })
     });
 
