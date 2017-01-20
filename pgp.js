@@ -20,7 +20,7 @@ const options = {
 };
 const pgp = require('pg-promise')(options);
 // Khi có lỗi phải bật monitor để quan sát câu lệnh SQL
-monitor.attach(options);
+//monitor.attach(options);
 monitor.setTheme('bright');
 
 module.exports.db = pgp(cn);

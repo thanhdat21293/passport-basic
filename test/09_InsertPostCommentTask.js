@@ -12,16 +12,15 @@ const _ = require('lodash');
 
 
 let post_ids = [];
-let page_ids = [];
 let person_ids = [];
 const number = 2;
 
 
-describe("Insert posts, pages and comments", function () {
-  it(`It should insert ${number} posts and ${number} pages`, function () {
+describe("Insert posts and comments", function () {
+  it(`It should insert ${number} posts`, function () {
     /*
      1. Get all id of persons
-     2. Insert number of post and page records
+     2. Insert number of post records
      */
 
     return db.task("Insert Posts - Pages", function (t) {
@@ -39,27 +38,19 @@ describe("Insert posts, pages and comments", function () {
             post_ids.push(post_id);
             queries.push(t.none('INSERT INTO cms.post (id, title, content, author, cdate) VALUES($1, $2, $3, $4, $5)',
               [post_id, `Title ${i}`, `Content ${i}`, _.sample(person_ids), new Date()]));
-
-            let page_id = shortid.generate();
-            page_ids.push(page_id);
-            queries.push(t.none('INSERT INTO cms.page (id, title, content, author, cdate) VALUES($1, $2, $3, $4, $5)',
-              [post_id, `Title ${i}`, `Content ${i}`, _.sample(person_ids), new Date()]));
-
           }
           return t.batch(queries);
         })
         .then(result => {
-          return result.length;   //Trả vể số lượng bản ghi đã được insert
+          return result.length;   //Return number of inserted posts
         });
 
 
-    }).should.eventually.equal(number * 2);  //Số lượng bản ghi post page tạo ra gấp 2 lần number
+    }).should.eventually.equal(number);  //Số lượng bản ghi post page tạo ra gấp 2 lần number
   });
 
 
-
-
-  it("Create hierarchy comments on post", function () {
+  it("Create hierarchy comments using Task", function () {
 
     return db.task("Create hierarchy comments", function (t) {
       let queries = [];
