@@ -4,7 +4,7 @@ const chai = require('chai');
 const should = chai.should();
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
-const number = 2;
+const number = 10;
 
 describe("Demo nested transaction", function () {
   it(`It should insert ${number} records into cms.users`, function () {
@@ -27,20 +27,18 @@ describe("Demo nested transaction", function () {
 
           //shorter
           //return t1.one('SELECT count(*) FROM cms.users');
-          var inserts = [];
+          let inserts = [];
           for (let i = 1; i <= number; i++) {
-            v.inserts.push(t1.none('INSERT INTO cms.users(name) VALUES($1)', 'Cool-' + i));
+            inserts.push(t1.none('INSERT INTO cms.users(name) VALUES($1)', 'Cool-' + i));
           }
           return t1.batch(inserts)
             .then(function() {
-                return t1.one('SELECT count(*) FROM cms.users', [], +a=>a.count);
+                return t1.one('SELECT count(*) FROM cms.users');
           });
         }));
       return t.batch(queries);
     }).then(function (data) {
-        // this whole .then is not really needed ;)
-        console.log(data); // data = the count integer
-        return data;
+        return parseInt(data[data.length - 1].count);
       })
       .catch(function (error) {
         return error;
