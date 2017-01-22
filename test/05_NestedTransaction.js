@@ -27,18 +27,20 @@ describe("Demo nested transaction", function () {
 
           //shorter
           //return t1.one('SELECT count(*) FROM cms.users');
+          var inserts = [];
           for (let i = 1; i <= number; i++) {
-            t1.none('INSERT INTO cms.users(name) VALUES($1)', 'Cool-' + i);
+            v.inserts.push(t1.none('INSERT INTO cms.users(name) VALUES($1)', 'Cool-' + i));
           }
-
-          return t1.one('SELECT count(*) FROM cms.users');
-
+          return t1.batch(inserts)
+            .then(function() {
+                return t1.one('SELECT count(*) FROM cms.users', [], +a=>a.count);
+          });
         }));
       return t.batch(queries);
     }).then(function (data) {
-        //Get the last item, result of SELECT count(*) FROM cms.users
-      console.log(data);
-        return parseInt(data[data.length - 1].count);
+        // this whole .then is not really needed ;)
+        console.log(data); // data = the count integer
+        return data;
       })
       .catch(function (error) {
         return error;
