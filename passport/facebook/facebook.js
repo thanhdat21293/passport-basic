@@ -9,6 +9,7 @@ module.exports = function(passport) {
             profileFields: ['id', 'emails', 'name']
         },
         function (accessToken, refreshToken, profile, done) {
+        console.log(profile)
             let user = profile._json;
             db.oneOrNone('SELECT * FROM ws_users WHERE username = $1', user.email)
                 .then(data => {

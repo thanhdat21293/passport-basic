@@ -1,5 +1,6 @@
 const {db, } = require('../../pgp');
 const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt-nodejs');
 
 module.exports = function(passport){
     passport.use(new LocalStrategy(

@@ -1,15 +1,11 @@
 const fs = require('fs');
-const https = require('https');
-
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const nunjucks = require('nunjucks');
 const {db,} = require('./pgp');
 const flash = require("connect-flash");
-const bcrypt = require('bcrypt-nodejs');
 
 const passport = require('passport');
 
@@ -99,11 +95,12 @@ app.post('/login',
 
 app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
-        successRedirect: '/',
         failureRedirect: '/login',
         failureFlash: true
-    })
-);
+    }), function(req, res) {
+
+        res.redirect('/private');
+    });
 
 app.get('/login/facebook',
     passport.authenticate('facebook')

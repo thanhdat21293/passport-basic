@@ -14,6 +14,42 @@ npm i passport-facebook --save
 //Sử dụng đăng nhập google
 npm i passport-google-oauth --save
 ```
+## Tạp app facebook, google để lấy SECRET key, API key
+
+#### Facebook
+
+1. Vào [facebook app](https://developers.facebook.com/) và tạo app
+
+![tao app](images/1.jpg)
+
+2. Thêm sản phẩm -> thiết lập đăng nhập facebook
+
+![them san pham](images/2.jpg)
+
+3. Vao tab Cài đặt và điền domain. 
+
+![Dien domain](images/3.jpg)
+
+4. Lưu thay đổi
+
+#### Google
+
+1. Vào [Google app](https://console.developers.google.com/projectselector/apis/library)
+
+2. chọn tab Credentials -> Create credentials -> OAuth client ID
+
+![Tao app](images/4.jpg)
+
+3. Chọn 'Web application'
+
+![web application](images/5.jpg)
+
+4. Click 'Create'
+
+5. Khi tạo xong sẽ có API key và Secret key
+
+![API & SECRET](images/6.jpg)
+
 
 ## Thảm khảo
 
