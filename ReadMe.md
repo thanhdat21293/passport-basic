@@ -207,7 +207,7 @@ passport.use('facebook', new FacebookStrategy({
 
 Dữ liệu facebook trả về nếu thành công
 
-```json
+```
 { id: '...',
   username: '...',
   displayName: '...',
@@ -260,7 +260,7 @@ passport.use(new GoogleStrategy({
 
 Đăng nhập google sẽ trả về dữ liệu:
 
-```json
+```
 { id: '...',
   displayName: 'Đạt Nguyễn Thành',
   name: { familyName: 'Nguyễn Thành', givenName: 'Đạt' },
