@@ -1,28 +1,304 @@
-Ứng dụng này dùng để hướng dẫn học viên lớp Node.js.
-Thay vì sử dụng ORM thì chuyển sang dùng pg-promise là một lớp mỏng hỗ trợ promise bao lấy pg.
+# User login Passport
 
-Cách chạy thử:
+## Cài đặt modules
 
-1. ```git clone https://github.com/TechMaster/pg_promise.git```
-2. ```cd pg_promise```
-3. ```npm install```
-4. Bật Postgresql lên, tạo một cơ sở dữ liệu , sau đó tạo tiếp schema có tên là cms
-5. Sửa đổi cấu hình kết nối đến cơ sở dữ liệu ở config/config.json
-6. ```npm test```
+```bash
+npm i passport --save
+.
+//Sử dụng đăng nhập database
+npm i passport-local --save
+.
+//Sử dụng đăng nhập facebook
+npm i passport-facebook --save
+.
+//Sử dụng đăng nhập google
+npm i passport-google-oauth --save
+```
 
-Các hàm demo để được viết dưới dạng Unit Test sử dụng Mocha, Chai, Chai_Promise.
+## Thảm khảo
 
-Thư mục models chứa các model được viết kiểu ES6 class. Các model này tương tự như ORM class nhưng lập trình viên phải
-tự viết bằng tay. Cần gì viết đó, nhúng trực tiếp câu lệnh SQL bên trong các method.
+[Passport authenticate](http://passportjs.org/docs/overview)
 
-Điểm dở là có nhiều bảng đơn giản chỉ cần CRUD mà không join query thì cách này không tiết kiệm viết code.
-Nhưng nếu xử lý logic join, điều kiện phức tạp ORM khó đáp ứng.
+## Hướng dẫn
 
-Ví dụ này có sử dụng các module
+#### Cài đặt chung
 
-1. pg_structure
-2. shortid
-3. pg_promise
-4. low_dash
-5. mocha
-6. chai
+```javascript
+const passport = require('passport');
+.
+// Đăng nhập local
+const LocalStrategy = require('passport-local').Strategy;
+.
+// Đăng nhập facebook
+const FacebookStrategy = require('passport-facebook').Strategy;
+.
+// Đăng nhập google sử dụng oAuth 2.0
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
+app.use(passport.initialize()); // bắt buộc phải có để khởi tạo passport
+app.use(flash());
+app.use(passport.session()); 
+
+//Dữ liệu ở serializeUser trả về và lưu vào session.passport
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+//Dữ liệu ở deserializeUser trả về và lưu vào req.user
+passport.deserializeUser(function (user, done) {
+    console.log('deserializeUser', user)
+    done(null, user);
+});
+```
+
+### Đăng nhập local - từ database
+
+##### 1. Hiển thị form login
+
+Flash lưu thông báo khi đăng nhập thành công hoặc thất bại.
+```javascript
+app.get('/login', (req, res) => {
+    let message = '';
+    if (req.session.flash) {
+        message = req.session.flash.error.length > 0 ? req.session.flash.error[0] : '';
+    }
+    req.session.flash = '';
+    res.render('login', {message: message})
+});
+```
+
+##### 2. Submit form thì gửi lên server, Mặc định là 'local'
+
+```javascript
+app.post('/login',
+    passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: '/login',
+        failureFlash: true
+    })
+);
+```
+
+##### 3. Cấu hình đăng nhập local
+
+- Cách 1: Sử dụng mặc định thì name input sẽ trùng với username, password trong cấu hình
+
+    ```html
+    <input type="text" name="username" placeholder="Username">
+    <input type="text" name="password" placeholder="Password">
+    ```
+    ```javascript
+    passport.use(new LocalStrategy(
+        function (username, password, done) {
+            db.one('SELECT * FROM ws_users WHERE username = $1', username)
+                .then(data => {
+                    if (data) {
+                        bcrypt.compare(password, data.password, function (err, res) {
+                            if (err) return done(err);
+    
+                            if (res) return done(null, data.username);
+    
+                            return done(null, false, {message: 'Incorrect password.'});
+                        });
+                    } else {
+                        return done(null, false, {message: 'Incorrect username.'})
+                    }
+                })
+                .catch(error => {
+                    return done(null, false, {message: 'Incorrect username.'})
+                })
+        }
+    ));
+    ```
+
+- Cách 2: Custom name
+   
+   ```html
+    <input type="text" name="email" placeholder="Username">
+    <input type="text" name="pass" placeholder="Password">
+    ```
+    ```javascript
+    passport.use(new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'pass',
+    },
+        function (email, pass, done) {
+            db.one('SELECT * FROM ws_users WHERE username = $1', email)
+                .then(data => {
+                    if (data) {
+                        bcrypt.compare(pass, data.password, function (err, res) {
+                            if (err) return done(err);
+    
+                            if (res) return done(null, data.username);
+    
+                            return done(null, false, {message: 'Incorrect password.'});
+                        });
+                    } else {
+                        return done(null, false, {message: 'Incorrect username.'})
+                    }
+                })
+                .catch(error => {
+                    return done(null, false, {message: 'Incorrect username.'})
+                })
+        }
+    ));
+    ```
+    
+##### 4. Đăng nhập thành công
+
+Khi đăng nhập xong thì passport sẽ lưu vào session
+
+Hoặc hàm kiểm tra login của passport
+
+``` javascript
+req.isAuthenticated()
+```
+
+Có thể sử dụng để lưu session tùy chỉnh
+
+```javascript
+app.use((req, res, next) => {
+    if (req.isAuthenticated()) {
+        req.session.login = true;
+        req.session.user = req.user;
+    } else {
+        req.session.login = false;
+        req.session.user = {};
+    }
+    next();
+});
+```
+
+##### 5. Đăng nhập facebook
+
+Cấu hình route
+
+```javascript
+// callback từ facebook
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', {
+        successRedirect: '/',
+        failureRedirect: '/login',
+        failureFlash: true
+    })
+);
+
+// Khi người dùng login facebook thì sẽ chạy route này và sẽ vào đăng nhập facebook
+app.get('/login/facebook',
+    passport.authenticate('facebook') // 
+);
+```
+
+Cầu hình và xử lý dữ liệu facebook trả về
+
+```javascript
+passport.use('facebook', new FacebookStrategy({
+        clientID: 'FACEBOOK_APP_ID',
+        clientSecret: 'FACEBOOK_APP_SECRET',
+        callbackURL: "http://example.com/auth/facebook/callback",
+        profileFields: ['id', 'emails', 'name'] // Dữ liệu trả về. Mặc định ko trả về email nên ta thêm emails vào.
+    },
+    function (accessToken, refreshToken, profile, done) {
+        // profile sẽ lưu thông tin lấy từ facebook về
+        // Nhớ dùng: return done(...) để dữ liệu đc trả về
+    }
+));
+```
+
+Dữ liệu facebook trả về nếu thành công
+
+```json
+{ id: '...',
+  username: '...',
+  displayName: '...',
+  name: { familyName: 'Đạt', givenName: 'Nguyễn', middleName: 'Thành' },
+  gender: '...',
+  profileUrl: '...',
+  emails: [ { value: '...' } ],
+  provider: 'facebook',
+  _raw: '...',
+  _json: 
+   { id: '...',
+     email: '...',
+     last_name: 'Đạt',
+     first_name: 'Nguyễn',
+     middle_name: 'Thành' } }
+```
+
+##### 6. Đăng nhập google
+
+Cấu hình route
+
+- Có nhiều kiểu dữ liệu trả về. [xem thêm](https://developers.google.com/+/web/api/rest/oauth)
+
+
+```javascript
+app.get('/login/google',
+    passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.email'] }));
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    function(req, res) {
+        res.redirect('/');
+    });
+```
+
+Cấu hình và xử lý dữ liệu google trả về
+
+```javascript
+passport.use(new GoogleStrategy({
+    clientID: '64980042356-kn2mqkp84a405aim3ufs8rvd0vragm1q.apps.googleusercontent.com',
+    clientSecret: '0GEJOVWD2KGN6ty1yCzVe2fa',
+    callbackURL: "http://localhost:3001/auth/google/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+       // profile sẽ lưu thông tin lấy từ google về
+        // Nhớ dùng: return done(...) để dữ liệu đc trả về
+  }
+));
+```
+
+Đăng nhập google sẽ trả về dữ liệu:
+
+```json
+{ id: '...',
+  displayName: 'Đạt Nguyễn Thành',
+  name: { familyName: 'Nguyễn Thành', givenName: 'Đạt' },
+  emails: [ { value: 'example@gmail.com', type: 'account' } ],
+  photos: [ { value: '...' } ],
+  gender: '...',
+  provider: 'google',
+  _raw: '...',
+  _json: 
+   { kind: 'plus#person',
+     etag: '...',
+     gender: '...',
+     objectType: 'person',
+     id: '...',
+     displayName: 'Đạt Nguyễn Thành',
+     name: { familyName: 'Nguyễn Thành', givenName: 'Đạt' },
+     url: 'https://plus.google.com/110653217815824410910',
+     image: 
+      { url: '...',
+        isDefault: false },
+     placesLived: [ [Object] ],
+     isPlusUser: true,
+     language: '...',
+     ageRange: { min: ... },
+     circledByCount: ...,
+     verified: false } }
+```
+
+### Kết luận
+
+Sau khi có dữ liệu trả về rồi thì có hàm để kiểm ktra login hay chưa. 
+
+```javascript
+req.isAuthenticated()
+```
+Passport sẽ tự lưu biến user ở serializeUser và deserializeUser vào session
+
+```javascript
+req.session
+req.user
+```

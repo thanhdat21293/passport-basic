@@ -1,12 +1,12 @@
 {
   "development": {
-    "username": "payroll_admin",
+    "username": "postgres",
     "password": "abc",
-    "database": "payroll",
-    "host"    : "payroll",
-    "port"    : 5432,
+    "database": "test",
+    "host"    : "localhost",
+    "port"    : 5433,
     "dialect" : "postgres",
-    "schema"  : "cms",
+    "schema"  : "public",
     "logging" : false
   },
   "test": {

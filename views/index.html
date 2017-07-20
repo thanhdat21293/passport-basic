@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ajax examples</title>
+    <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+</head>
+<body>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+    <a href="/private">Private</a>
+    <a href="#" onclick="getData()">Get</a>
+<script>
+    function getData() {
+        jQuery.ajax({
+            url: '/getData',
+            type: 'get',
+            data: 'name=Techmaster',
+            contentType: 'text/plain',
+            //data: {name: 'Techmaster'},
+            beforeSend: function(){
+                jQuery('body').append('<div class="app"></div>')
+            },
+            success: function (result) {
+                console.log(result)
+                jQuery('.app').html(result);
+            },
+            complete: function(){
+                console.log('Completed');
+            },
+            error: function(error){
+                console.log(error.statusText)
+            }
+        })
+    }
+</script>
+</body>
+</html>
