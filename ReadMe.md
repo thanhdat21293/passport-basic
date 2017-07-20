@@ -32,6 +32,10 @@ npm i passport-google-oauth --save
 
 4. Lưu thay đổi
 
+5. Vào 'Bảng điều khiển' để lấy App id vs Secret key
+
+![App & Secret](images/7.jpg)
+
 #### Google
 
 1. Vào [Google app](https://console.developers.google.com/projectselector/apis/library)
