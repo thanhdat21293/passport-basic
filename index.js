@@ -30,7 +30,6 @@ app.use(session({
     cookie: {secure: false}
 }))
 
-
 // app.get('/getData', (req,res) => {
 //     let getName = req.query.name;
 //     res.send('<div class="abc"><h1> ' + getName + ' </h1></div>');
@@ -73,6 +72,8 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
+    console.log('req.user', req.user)
+    console.log('Session', req.session)
     res.render('index')
 });
 
@@ -112,7 +113,7 @@ app.get('/login/google',
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('/');
+    res.redirect('/private');
   });
 
 

@@ -54,6 +54,11 @@ npm i passport-google-oauth --save
 
 ![API & SECRET](images/6.jpg)
 
+6. Bật Google+ API
+
+Library -> Google+ API
+
+![Google API](images/8.jpg)
 
 ## Thảm khảo
 
