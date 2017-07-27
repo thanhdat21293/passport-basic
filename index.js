@@ -21,6 +21,12 @@ nunjucks.configure('views', {
 app.engine('html', nunjucks.render);
 app.set('view engine', 'html');
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 app.use(session({
     cookie: {maxAge: (3600 * 1000)},
     unser: 'destroy',
@@ -30,17 +36,25 @@ app.use(session({
     cookie: {secure: false}
 }))
 
-// app.get('/getData', (req,res) => {
-//     let getName = req.query.name;
-//     res.send('<div class="abc"><h1> ' + getName + ' </h1></div>');
-// });
-//
-// app.post('/getData', (req,res) => {
-//     console.log(req.body)
-//     let getName = req.body.name;
-//     res.send('<div class="abc"><h1> 1' + getName + ' </h1></div>');
-//     //res.json({a:11, b: 2})
-// });
+app.get('/getData', (req,res) => {
+    let getName = req.query.name;
+    // res.send('<div class="abc"><h1> ' + getName + ' </h1></div>');
+});
+
+app.post('/getData', (req,res) => {
+    console.log(req.body)
+    let getName = req.body.name;
+    //res.send('<div class="abc"><h1> 1' + getName + ' </h1></div>');
+    // setTimeout(function(){
+    //     res.send('<div class="abc"><h1> 13425345345 </h1></div>');
+    // }, 3000)
+
+    setTimeout(function(){
+        res.send('<div class="abc"><h1> 13425345345 </h1></div>');
+    }, 2000)
+
+    //res.json({a:11, b: 2})
+});
 
 /**
  * SET UP Passport
@@ -74,7 +88,33 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     console.log('req.user', req.user)
     console.log('Session', req.session)
-    res.render('index')
+    console.log(req.user)
+    res.render('index', {
+        login: req.session.login,
+        user: req.session.user,
+    })
+});
+
+app.get('/json', (req, res) => {
+    // console.log('req.user', req.user)
+    // console.log('Session', req.session)
+    // console.log(req.user)
+    // res.render('index', {
+    //     login: req.session.login,
+    //     user: req.session.user,
+    // })
+    res.json({
+        task: [
+            {desc: 'Tắm biển'},
+            {desc: 'thì phải'},
+            {desc: 'mặc bikini,'},
+            {desc: 'không mặc'},
+            {desc: 'bikini thì'},
+            {desc: 'không phải'},
+            {desc: 'là tắm biển'},
+            {desc: 'Ahihi'},
+        ]
+    })
 });
 
 app.get('/login', (req, res) => {
@@ -83,7 +123,9 @@ app.get('/login', (req, res) => {
         message = req.session.flash.error.length > 0 ? req.session.flash.error[0] : '';
     }
     req.session.flash = '';
-    res.render('login', {message: message})
+    res.render('login', {
+        message: message
+    })
 });
 
 app.post('/login',
